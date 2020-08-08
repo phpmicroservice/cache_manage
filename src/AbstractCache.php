@@ -1,28 +1,26 @@
 <?php
 
-namespace App\Helper;
+namespace CacheManage;
 
-use \Illuminate\Support\Facades\Cache;
 
 /**
  * Description of AbstractCache
  *
  * @author dongasai
  */
-abstract class AbstractCache
-        implements CacheInterface
+abstract class AbstractCache implements CacheInterface
 {
 
     protected $param_arr = [];
-    protected $ttl       = 60;
+    protected $ttl = 60;
 
     public function __construct($param_arr = [], $ttl = null)
     {
 
-        if($param_arr){
+        if ($param_arr) {
             $this->param_arr = $param_arr;
         }
-        if($ttl !== null){
+        if ($ttl !== null) {
             $this->ttl = $ttl;
         }
     }
@@ -65,13 +63,13 @@ abstract class AbstractCache
     public function update()
     {
         $key = $this->getKey();
-         $data = call_user_func_array([$this, 'handle'], $this->param_arr);
-         \Illuminate\Support\Facades\Cache::put($key, $data, $this->ttl);
-          $tags = $this->tags();
-         if ($tags) {
-            $this->tags_put($key, $tags,$this->ttl);
+        $data = call_user_func_array([$this, 'handle'], $this->param_arr);
+        \Illuminate\Support\Facades\Cache::put($key, $data, $this->ttl);
+        $tags = $this->tags();
+        if ($tags) {
+            $this->tags_put($key, $tags, $this->ttl);
         }
-         return $data;
+        return $data;
     }
 
     /**
@@ -79,15 +77,15 @@ abstract class AbstractCache
      * @param type $name
      * @param type $tags 标签列表
      */
-    private function tags_put($name, $tags,$ttl)
+    private function tags_put($name, $tags, $ttl)
     {
         Cache::put($name . '_ob', $this, $ttl);
         foreach ($tags as $tag1) {
             if (is_string($tag1)) {
-                $k       = 'tage_' . $tag1;
-                $names   = Cache::get($k, []);
+                $k = 'tage_' . $tag1;
+                $names = Cache::get($k, []);
                 $names[] = $name;
-                $names   = array_unique($names);
+                $names = array_unique($names);
                 Cache::put($k, $names, $ttl);
             } else {
                 throw new Exception("非字符串标签");
