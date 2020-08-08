@@ -1,0 +1,33 @@
+{
+    "name": "phpmicroservice/cache_manage",
+    "description": "一个缓存管理工具",
+    "type": "library",
+    "license": "MIT",
+    "require-dev": {
+        "phpunit/phpunit": "^6.5",
+        "symfony/var-dumper": "^3.1",
+        "symfony/cache": "^3.4",
+        "predis/predis": "^1.1"
+    },
+    "require": {
+        "php": "^7.0"
+    },
+    "suggest": {
+        "predis/predis": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "CacheManage\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "test\\": "test/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "vendor/bin/phpunit  --stop-on-failure "
+        ]
+    }
+}

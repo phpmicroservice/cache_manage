@@ -1,0 +1,21 @@
+version: '2'
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cache_manage:dev
+    privileged: false
+    restart: unless-stopped
+    tty: true
+    volumes:
+    - .:/var/www/html
+    links:
+    - redis
+  redis:
+    image: redis:3.2.9
+    privileged: false
+    restart: unless-stopped
+    expose:
+    - 6379
+  

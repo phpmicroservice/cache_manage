@@ -5,3 +5,5 @@
 .env
 composer.lock
 /nbproject/
+/test/runtime/*
+!/test/runtime/readme.md
