@@ -8,8 +8,8 @@
     "phpmicroservice/mongo-odm": "^1.0"
   },
   "require": {
-    "php": "^7.2",
-    "symfony/var-dumper": "^5.1"
+    "php": "^7.0",
+    "symfony/var-dumper": "^4.1"
   },
   "suggest": {
     "predis/predis": "^1.1"
