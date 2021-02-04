@@ -11,7 +11,10 @@ class Team extends Table
 {
 
     public $id;
-    protected $fields = [
+    public $time;
+    public $name;
+    
+    public $fields = [
         "name",
         'time'
     ];
@@ -23,7 +26,7 @@ class Team extends Table
 
     public function getTime()
     {
-        return time();
+        return microtime(true);
     }
 
 }

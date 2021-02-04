@@ -3,11 +3,10 @@
 namespace CacheManage\Driver;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Adapter\AbstractAdapter;
-use Symfony\Component\Cache\CacheItem;
+
 /**
  * Description of Symfony
- *  
+ * Symfony的缓存驱动再封装
  * @author dongasai
  */
 class Symfony extends \CacheManage\AbstractDriver
@@ -57,7 +56,7 @@ class Symfony extends \CacheManage\AbstractDriver
         return $item->get();
     }
 
-    public function set($key, $value, int $ttl = 0): bool
+    public function set(string $key, $value, int $ttl = 0): bool
     {
         /**
          * @var \Symfony\Component\Cache\CacheItem $item

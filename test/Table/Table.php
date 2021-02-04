@@ -10,7 +10,7 @@ namespace test\Table;
 class Table
 {
 
-    protected $fields = [];
+    public $fields = [];
 
     public function __construct($where)
     {

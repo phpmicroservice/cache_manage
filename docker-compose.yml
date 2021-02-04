@@ -10,4 +10,12 @@ services:
     tty: true
     volumes:
     - .:/var/www/html
+    links:
+    - redis
+  redis:
+    image: redis:3.2.9
+    privileged: false
+    restart: unless-stopped
+    expose:
+    - 6379
   

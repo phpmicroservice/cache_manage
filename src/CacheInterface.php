@@ -8,6 +8,7 @@ namespace CacheManage;
  */
 interface CacheInterface
 {
+
     /**
      * 获取数据
      * @param type $time

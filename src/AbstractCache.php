@@ -17,10 +17,15 @@ abstract class AbstractCache implements CacheInterface
     protected $relatedTags = [];
 
     /**
-     * 
-     * @var DriverInterface
+     * @var DriverInterface 
      */
     protected $dirverInstance = null;
+    
+    /**
+     * @var DriverInterface
+     */
+    protected static $dirverTagInstance = null;
+     
 
     public function __construct($param_arr = [], $ttl = null)
     {
@@ -42,6 +47,23 @@ abstract class AbstractCache implements CacheInterface
             $driver               = $this->dirver;
             $this->dirverInstance = $driver::getInstance();
         }
+        self::getTagDirverInstance();
+    }
+    
+    /**
+     * 标签储存驱动
+     */
+    private static function getTagDirverInstance()
+    {
+        if (!self::$dirverTagInstance) {
+            if (!isset(self::$dirverTag)) {
+                $driver = Driver\Predis::class;
+            } else {
+                $driver = self::$dirverTag;
+            }
+            self::$dirverTagInstance = $driver::getInstance();
+        }
+        return self::$dirverTagInstance;
     }
 
     /**
@@ -78,10 +100,9 @@ abstract class AbstractCache implements CacheInterface
 
     /**
      * 更新数据
-     * @param null|string $upTag
      * @return 
      */
-    public function update($upTag = null)
+    public function update()
     {
         $key = $this->getKey();
         try {
@@ -94,11 +115,13 @@ abstract class AbstractCache implements CacheInterface
 
         $relatedTags = $this->relatedTags();
         if ($relatedTags) {
-            $this->tags_put($key, $relatedTags, $this->ttl);
+            $this->tagsPut($key, $relatedTags, $this->ttl);
         }
         $selfTags = $this->selfTags();
         if ($selfTags) {
-            $this->tags_update($selfTags);
+             foreach ($selfTags as $tag) {
+                $this->updateTag($tag);
+            }
         }
         return $data;
     }
@@ -106,52 +129,44 @@ abstract class AbstractCache implements CacheInterface
     /**
      * 转换为字符串Key 
      */
-    private function toKey()
+    private static function toKey()
     {
         return md5(serialize(func_get_args()));
     }
 
     /**
      * 标签储存
-     * @param type $name
-     * @param type $tags 标签列表
+     * @param string $name
+     * @param array $tags
+     * @param int $ttl
      */
-    private function tags_put($name, $tags, $ttl)
+    private function tagsPut(string $name,array $tags, int $ttl)
     {
-        $this->dirverInstance->set($name . '_ob', $this, $ttl);
+        self::$dirverTagInstance->set($name . '_ob', $this, $ttl);
         foreach ($tags as $tag1) {
             $k       = $this->toKey('tage', $tag1);
-            $names   = $this->dirverInstance->get($k, []);
+            $names   = self::$dirverTagInstance->get($k, []);
             $names[] = $name;
             $names   = array_unique($names);
-            $this->dirverInstance->set($k, $names, $ttl);
+            self::$dirverTagInstance->set($k, $names, $ttl);
         }
     }
 
-    /**
-     * 
-     * @param string $key
-     * @param array $tags
-     */
-    private function tags_update( $tags)
-    {
-        foreach ($tags as $tag) {
-            $key = $this->toKey('tage', $tag);
-            $this->update_tag2( $key);
-        }
-    }
+    
 
     /**
      * 更新标签
      * @param string $tag
      * @param string $key
      */
-    public function update_tag2($key)
+    public static function updateTag($tag)
     {
-        $names = $this->dirverInstance->get($key);
+        
+        $key = self::toKey('tage', $tag);
+        $names = self::$dirverTagInstance->get($key);
         if ($names) {
             foreach ($names as $name) {
-                $ob = $this->dirverInstance->get($name . '_ob');
+                $ob = self::$dirverTagInstance->get($name . '_ob');
                 if ($ob instanceof AbstractCache) {
                     $ob->update($key);
                 }

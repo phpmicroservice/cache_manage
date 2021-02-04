@@ -1,6 +1,7 @@
 <?php
 
 namespace CacheManage\Driver;
+
 use Predis\Client;
 
 /**
@@ -11,21 +12,39 @@ use Predis\Client;
  */
 class Predis implements \CacheManage\DriverInterface
 {
-    private $predis;
 
-    public function __construct($config)
+    private $predis;
+    public static $Instance;
+
+    public function __construct($config=null)
     {
         $this->predis = new Client($config);
     }
 
-    public function get($key, $default = null)
+    /**
+     * 单例模式获取
+     * @return self
+     */
+    public static function getInstance($config =null)
     {
-        return $this->predis->get($key);
+        if (!self::$Instance) {
+            self::$Instance = new self($config);
+        }
+        return self::$Instance;
     }
 
-    public function set($key, $value, $ttl = 0):bool
+    public function get($key, $default = null)
     {
-        return $this->predis->set($key,$value,$ttl);
+        if(!$this->has($key)){
+            return $default;
+        }
+        return unserialize($this->predis->get($key));
+    }
+
+    public function set(string $key, $value, int $ttl = 0): bool
+    {
+        $re =  $this->predis->set($key, serialize($value) ,'EX', $ttl);
+        return $re->getPayload() == 'OK';    
     }
 
     public function remove($key)
@@ -33,8 +52,13 @@ class Predis implements \CacheManage\DriverInterface
         return $this->predis->del($key);
     }
 
-    public function has($key):bool
+    public function has($key): bool
     {
         return $this->predis->exists($key);
+    }
+
+    public function clear()
+    {
+        return $this->predis->flushdb();
     }
 }

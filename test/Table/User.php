@@ -11,7 +11,7 @@ class User extends Table
 {
 
     public $id; //字段
-    protected $fields = [
+    public $fields = [
         'username',
         'password',
         'time',
@@ -40,12 +40,12 @@ class User extends Table
 
     public function getTime()
     {
-        return time();
+        return microtime(true);
     }
 
     public function getTeamId()
     {
-        return $this->id % 4;
+        return $this->id % 20;
     }
 
     /**
