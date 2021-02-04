@@ -102,7 +102,7 @@ abstract class AbstractCache implements CacheInterface
      * 更新数据
      * @return 
      */
-    public function update($upTag = null)
+    public function update()
     {
         $key = $this->getKey();
         try {
