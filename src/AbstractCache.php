@@ -84,6 +84,14 @@ abstract class AbstractCache implements CacheInterface
         }
         return $data;
     }
+    
+    /**
+     * 转换为字符串Key 
+     */
+    private function toKey()
+    {
+        return md5(serialize(func_get_args()));
+    }
 
     /**
      * 标签储存
@@ -93,10 +101,9 @@ abstract class AbstractCache implements CacheInterface
     private function tags_put($name, $tags, $ttl)
     {
         
-        $this->dirverInstance->set($this->getKey($name . '_ob'), $this, $ttl);
+        $this->dirverInstance->set($name . '_ob', $this, $ttl);
         foreach ($tags as $tag1) {
-            $k       = $this->getKey('tage_' . $tag1);
-            
+            $k       = $this->toKey('tage' , $tag1);
             $names   = $this->dirverInstance->get($k, []);
             $names[] = $name;
             $names   = array_unique($names);
