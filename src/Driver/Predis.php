@@ -1,7 +1,6 @@
 <?php
 
 namespace CacheManage\Driver;
-
 use Predis\Client;
 
 /**

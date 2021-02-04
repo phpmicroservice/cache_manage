@@ -23,8 +23,5 @@ class Team extends \CacheManage\AbstractCache
         $this->selfTags[] = "team_$id";
         return $team;
     }
-
-   
-    
     
 }
