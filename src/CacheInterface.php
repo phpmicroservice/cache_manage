@@ -27,10 +27,10 @@ interface CacheInterface
 
 
     /**
-     * 获取标签
+     * 获取自我标签
      * @return array
      */
-    public function tags(): array;
+    public function selfTags(): array;
 
     /**
      * 获取数据

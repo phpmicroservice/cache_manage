@@ -15,7 +15,7 @@ interface DriverInterface
 
     public function get($key, $default = null);
 
-    public function set($key, $value, $ttl = 0): bool;
+    public function set($key, $value, int $ttl = 0): bool;
 
     public function remove($key);
 }

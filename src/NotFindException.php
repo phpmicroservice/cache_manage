@@ -10,10 +10,10 @@ namespace CacheManage;
 
 /**
  * Description of Exception
- * 
+ *  could not find it
  * @author dongasai
  */
-class Exception
+class NotFindException
 {
     
 }
