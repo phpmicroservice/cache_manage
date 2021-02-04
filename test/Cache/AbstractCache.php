@@ -1,6 +1,6 @@
 <?php
 
-namespace test\Cache\One;
+namespace test\Cache;
 
 use CacheManage\Driver\Symfony;
 
@@ -10,25 +10,24 @@ use CacheManage\Driver\Symfony;
  * @author dongasai
  */
 abstract class AbstractCache extends \CacheManage\AbstractCache
-{
-    
+{    
     protected function connect()
     {
         if (!$this->dirverInstance) {
-            $driver = $this->dirver;
+            $driver               = $this->dirver;
             $this->dirverInstance = $driver::getInstance();
         }
         self::getTagDirverInstance();
     }
-
-    /**
+    
+    
+     /**
      * 标签储存驱动
      */
     protected static function getTagDirverInstance()
     {
-       
-        if (!self::$dirverTagInstance || self::$dirverTagInstance instanceof \CacheManage\Driver\Symfony) {
-            $driver = \CacheManage\Driver\Symfony::class;
+        if (!self::$dirverTagInstance) {
+            $driver = \CacheManage\Driver\Predis::class;
             self::$dirverTagInstance = $driver::getInstance();
         }
         return self::$dirverTagInstance;

@@ -2,7 +2,6 @@
 
 namespace test\Cache;
 
-use CacheManage\AbstractCache;
 use CacheManage\Driver\Symfony;
 
 /**

@@ -10,22 +10,18 @@ namespace CacheManage;
 abstract class AbstractCache implements CacheInterface
 {
 
-    protected $param_arr   = [];
-    protected $ttl         = 60;
-    protected $dirver      = null;
-    protected $selfTags    = [];
+    protected $param_arr = [];
+    protected $ttl = 60;
+    protected $dirver = null;
+    protected $selfTags = [];
     protected $relatedTags = [];
 
     /**
      * @var DriverInterface 
      */
     protected $dirverInstance = null;
-    
-    /**
-     * @var DriverInterface
-     */
-    protected static $dirverTagInstance = null;
-     
+
+
 
     public function __construct($param_arr = [], $ttl = null)
     {
@@ -41,39 +37,26 @@ abstract class AbstractCache implements CacheInterface
         }
     }
 
-    private function connect()
+    protected function connect()
     {
         if (!$this->dirverInstance) {
-            $driver               = $this->dirver;
+            $driver = $this->dirver;
             $this->dirverInstance = $driver::getInstance();
         }
-        self::getTagDirverInstance();
     }
-    
+
     /**
      * 标签储存驱动
      */
-    private static function getTagDirverInstance()
+    protected static function getTagDirverInstance()
     {
         if (!self::$dirverTagInstance) {
-            if (!isset(self::$dirverTag)) {
-                $driver = Driver\Predis::class;
-            } else {
-                $driver = self::$dirverTag;
-            }
+            $driver = \CacheManage\Driver\Predis::class;
             self::$dirverTagInstance = $driver::getInstance();
         }
         return self::$dirverTagInstance;
     }
 
-    /**
-     * 获取缓存key
-     * @return type
-     */
-    public function getKey()
-    {
-        return md5(serialize($this));
-    }
 
     /**
      * 获取值
@@ -89,7 +72,7 @@ abstract class AbstractCache implements CacheInterface
         if ($ttl !== null) {
             $this->ttl = $ttl;
         }
-        $key = $this->getKey();
+        $key = Helper::getKey($this);
         if (!$this->dirverInstance->has($key)) {
 
             return $this->update();
@@ -104,74 +87,15 @@ abstract class AbstractCache implements CacheInterface
      */
     public function update()
     {
-        $key = $this->getKey();
+        $key = Helper::getKey($this);
         try {
             $data = call_user_func_array([$this, 'handle'], $this->param_arr);
             $this->dirverInstance->set($key, $data, $this->ttl);
         } catch (NotFindException $e) {
             $this->dirverInstance->remove($key);
             $data = null;
-        }
-
-        $relatedTags = $this->relatedTags();
-        if ($relatedTags) {
-            $this->tagsPut($key, $relatedTags, $this->ttl);
-        }
-        $selfTags = $this->selfTags();
-        if ($selfTags) {
-             foreach ($selfTags as $tag) {
-                $this->updateTag($tag);
-            }
-        }
+        }        
         return $data;
-    }
-
-    /**
-     * 转换为字符串Key 
-     */
-    private static function toKey()
-    {
-        return md5(serialize(func_get_args()));
-    }
-
-    /**
-     * 标签储存
-     * @param string $name
-     * @param array $tags
-     * @param int $ttl
-     */
-    private function tagsPut(string $name,array $tags, int $ttl)
-    {
-        self::$dirverTagInstance->set($name . '_ob', $this, $ttl);
-        foreach ($tags as $tag1) {
-            $k       = $this->toKey('tage', $tag1);
-            $names   = self::$dirverTagInstance->get($k, []);
-            $names[] = $name;
-            $names   = array_unique($names);
-            self::$dirverTagInstance->set($k, $names, $ttl);
-        }
-    }
-
-    
-
-    /**
-     * 更新标签
-     * @param string $tag
-     * @param string $key
-     */
-    public static function updateTag($tag)
-    {
-        
-        $key = self::toKey('tage', $tag);
-        $names = self::$dirverTagInstance->get($key);
-        if ($names) {
-            foreach ($names as $name) {
-                $ob = self::$dirverTagInstance->get($name . '_ob');
-                if ($ob instanceof AbstractCache) {
-                    $ob->update($key);
-                }
-            }
-        }
     }
 
     /**

@@ -11,6 +11,8 @@ class OneTest extends \PHPUnit\Framework\TestCase
     public function testFirst()
     {
         $user1                = new \test\Cache\One\User([1]);
+        $this->assertInstanceOf(\CacheManage\Driver\Symfony::class, $user1->dirverInstance());
+        $this->assertInstanceOf(\CacheManage\Driver\Symfony::class, $user1->dirverTagInstance());
         $re1                  = $user1->get();
         self::$time[0]        = $re1->time;
         self::$time['userteam_1'] = $re1->team->time;
