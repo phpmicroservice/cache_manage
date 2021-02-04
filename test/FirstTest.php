@@ -1,7 +1,11 @@
 <?php
 
 /**
+<<<<<<< HEAD
  * 标签储存在默认驱动 （Predis 驱动）
+=======
+ * 
+>>>>>>> 444d94d... init
  */
 class FirstTest extends \PHPUnit\Framework\TestCase
 {
