@@ -12,16 +12,21 @@ function dump2()
 //    $func = isset($stack['function']) ? $stack['function'] : '';
 //         $args = isset($stack['args'])?$stack['args']:'';
     // $class = isset($stack['class'])?$stack['class']:'';
-    echo " \n file :$file ; line :$line ";
-    call_user_func_array('dump', func_get_args());
+    echo "  file :$file ; line :$line \n";
+    call_user_func_array('var_dump', func_get_args());
 }
 
-
-\CacheManage\Driver\Symfony::getInstance()->clear();
+/**
+ * 进行毫秒延迟
+ * @param int $ms
+ */
+function msleep($ms = 1)
+{
+    usleep($ms * 1000);
+}
 
 $config = [
-    'host'   => 'redis',
+    'host'   => '192.168.1.132',
     'port'   => 6379,
 ];
-CacheManage\Driver\Predis::getInstance($config)->clear();
-
+\CacheManage\Driver\Predis::getInstance($config);

@@ -10,7 +10,7 @@ class Helper
      * @return type
      */
     public static function getKey($that)
-    {
+    {   
         return md5(serialize($that));
     }
 
@@ -19,6 +19,7 @@ class Helper
      */
     public static function toKey()
     {
+        return implode('_',func_get_args());
         return md5(serialize(func_get_args()));
     }
 

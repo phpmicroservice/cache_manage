@@ -3,7 +3,7 @@
 namespace test\Cache;
 
 use CacheManage\Driver\Symfony;
-
+use CacheManage\Driver\Predis;
 /**
  * @method \test\Table\User get()
  */
@@ -26,7 +26,6 @@ class User extends AbstractCache
         $user                = new \test\Table\User(['id' => $id]);
         $teamId              = $user->getTeamId();
         $this->relatedTags[] = "team_$teamId";
-        
         return $user;
     }
 

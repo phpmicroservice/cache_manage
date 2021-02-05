@@ -13,6 +13,7 @@ class Team extends AbstractCache
 {
     // 单元测试用,正常使用无需引用
     use \test\Cache\CacheTrait;
+    
     protected $dirver = Predis::class;
     
     public function handle()

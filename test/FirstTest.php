@@ -7,19 +7,24 @@ class FirstTest extends \PHPUnit\Framework\TestCase
 {
 
     static $time;
+    
+    public static function setUpBeforeClass()
+    {
+        \CacheManage\Driver\Predis::getInstance()->clear();
+
+        \CacheManage\Driver\Symfony::getInstance()->clear();
+    }
 
     public function testFirst()
     {
         $user1 = new \test\Cache\User([1]);
-
+        $re1                      = $user1->get();
         $this->assertInstanceOf(\CacheManage\Driver\Symfony::class, $user1->dirverInstance());
         $this->assertInstanceOf(\CacheManage\Driver\Predis::class, $user1->dirverTagInstance());
-
-        $re1                      = $user1->get();
         self::$time[0]            = $re1->time;
         self::$time['userteam_1'] = $re1->team->time;
         $this->assertLessThanOrEqual(microtime(true), self::$time[0]);
-        sleep(1);
+         msleep(100);
         $re2                      = $user1->get();
         // 读取缓存时间不变
         $this->assertEquals(self::$time[0], $re2->time);
@@ -38,12 +43,13 @@ class FirstTest extends \PHPUnit\Framework\TestCase
 
     public function test2()
     {
-        sleep(1);
+         msleep(100);
         $team    = new test\Cache\Team([1]);
+//        更新 组 数据
+        $teamR = $team->update();
         $this->assertInstanceOf(\CacheManage\Driver\Predis::class, $team->dirverInstance());
         $this->assertInstanceOf(\CacheManage\Driver\Predis::class, $team->dirverTagInstance());
-//        更新 组 数据
-        $team->update();
+        $this->assertGreaterThan(self::$time['userteam_1'], $teamR->time);
         $user1   = new test\Cache\User([1]);
         $reUser  = $user1->get();
         $newTime = $reUser->team->time;
@@ -52,10 +58,16 @@ class FirstTest extends \PHPUnit\Framework\TestCase
         $this->assertGreaterThan(self::$time['userteam_1'], $user1->get([21])->team->time);
         // 非组成员，不更新，时间滞后
         $this->assertLessThan($newTime, $user1->get([2])->team->time);
-        sleep(1);
+        msleep(100);
         // 全新的组
         $user4   = $user1->get([4]);
         $this->assertGreaterThan($newTime, $user4->team->time);
+        $oldTime = $user4->team->time;
+        $this->assertEquals($oldTime, $user1->get([4])->team->time);
+        msleep(100);
+        \CacheManage\TagManager::getInstance()->updateTags(['team_4']);
+        $user41   = $user1->get([4]);
+        $this->assertGreaterThan($oldTime, $user41->team->time);
     }
 
     public function test3()
@@ -63,7 +75,7 @@ class FirstTest extends \PHPUnit\Framework\TestCase
         $time3 = new test\Cache\Time3();
         $old   = $time3->get();
         $this->assertEquals($old, $time3->get());
-        sleep(1);
+        msleep(100);
         $this->assertEquals($old, $time3->get());
         sleep(3);
         $this->assertGreaterThan($old, $time3->get());

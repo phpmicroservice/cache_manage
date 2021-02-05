@@ -5,7 +5,7 @@ namespace CacheManage;
 /**
  * Description of AbstractDriver
  * 驱动基类
- * @author zhenyou
+ * @author dongasai
  */
 abstract class AbstractDriver implements DriverInterface
 {

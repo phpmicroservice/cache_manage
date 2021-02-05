@@ -16,12 +16,6 @@ interface CacheInterface
     public function get($param_arr, $time);
 
     /**
-     * 获取键名
-     * @return mixed
-     */
-    public function getKey();
-
-    /**
      * 更新
      */
     public function update();

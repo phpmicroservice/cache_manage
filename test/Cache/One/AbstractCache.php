@@ -11,27 +11,9 @@ use CacheManage\Driver\Symfony;
  */
 abstract class AbstractCache extends \CacheManage\AbstractCache
 {
+     public function __update()
+    {
+        TagManager::getInstance()->run($this);
+    }
     
-    protected function connect()
-    {
-        if (!$this->dirverInstance) {
-            $driver = $this->dirver;
-            $this->dirverInstance = $driver::getInstance();
-        }
-        self::getTagDirverInstance();
-    }
-
-    /**
-     * 标签储存驱动
-     */
-    protected static function getTagDirverInstance()
-    {
-       
-        if (!self::$dirverTagInstance || self::$dirverTagInstance instanceof \CacheManage\Driver\Symfony) {
-            $driver = \CacheManage\Driver\Symfony::class;
-            self::$dirverTagInstance = $driver::getInstance();
-        }
-        return self::$dirverTagInstance;
-    }
-
 }

@@ -15,7 +15,7 @@ trait CacheTrait
      */
     public function dirverTagInstance()
     {
-        return self::$dirverTagInstance;
+        return $this->dirverTagInstance;
     }
 
     /**

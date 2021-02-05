@@ -43,7 +43,12 @@ class Predis implements \CacheManage\DriverInterface
 
     public function set(string $key, $value, int $ttl = 0): bool
     {
-        $re =  $this->predis->set($key, serialize($value) ,'EX', $ttl);
+        if($ttl){
+            $re =  $this->predis->set($key, serialize($value) ,'EX', $ttl);
+        }else{
+             $re =  $this->predis->set($key, serialize($value));
+        }
+       
         return $re->getPayload() == 'OK';    
     }
 

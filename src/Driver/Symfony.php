@@ -4,6 +4,9 @@ namespace CacheManage\Driver;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+
+
 /**
  * Description of Symfony
  * Symfony的缓存驱动再封装
@@ -22,11 +25,7 @@ class Symfony extends \CacheManage\AbstractDriver
 
     public function __construct($dir =null)
     {
-        
-        if(!$dir){
-            $dir = $_SERVER['PWD'].DIRECTORY_SEPARATOR.'test/runtime';
-        }
-        $this->cache = new FilesystemAdapter('',0, $dir);
+        $this->cache = new ArrayAdapter();
     }
 
     /**
@@ -62,7 +61,9 @@ class Symfony extends \CacheManage\AbstractDriver
          * @var \Symfony\Component\Cache\CacheItem $item
          */
         $item = $this->cache->getItem($key);
-        $item->expiresAfter($ttl);
+        if($ttl){
+            $item->expiresAfter($ttl);
+        }
         $item->set($value);
         return $this->cache->save($item);
     }

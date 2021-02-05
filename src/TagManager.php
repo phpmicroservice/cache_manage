@@ -2,6 +2,9 @@
 
 namespace CacheManage;
 
+use CacheManage\Driver\Predis;
+use CacheManage\Driver\Symfony;
+
 /**
  * Description of TagManager
  *
@@ -9,19 +12,48 @@ namespace CacheManage;
  */
 class TagManager
 {
-    
-    public static function run(AbstractCache $that)
+
+    public $dirver = Predis::class;
+    /**
+     * 
+     * @var DriverInterface
+     */
+    public $dirverInstance;
+    static $Instance;
+
+    public function __construct()
     {
-        $key = Helper::toKey();
-        $relatedTags = $that->relatedTags();
-        if ($relatedTags) {
-            self::tagsPut($key, $relatedTags, $this->ttl);
+        $driver               = $this->dirver;
+        $this->dirverInstance = $driver::getInstance();
+    }
+
+    /**
+     * 单例模式获取
+     * @return self
+     */
+    public static function getInstance()
+    {
+        if (!self::$Instance) {
+            self::$Instance = new self();
         }
-        $selfTags = $that->selfTags();
+        return self::$Instance;
+    }
+
+    public function run(AbstractCache $AbstractCache)
+    {
+        $AbstractCache->dirverTagInstance = $this->dirverInstance;
+        $key         = Helper::getKey($AbstractCache);
+        $relatedTags = $AbstractCache->relatedTags();
+        if ($relatedTags) {
+            $this->tagsPut($key, $relatedTags, $AbstractCache);
+        }
+        $selfTags = $AbstractCache->selfTags();
         if ($selfTags) {
             foreach ($selfTags as $tag) {
-                self::updateTag($tag);
+                $this->updateTag($tag);
             }
+            // 自我标签储存
+            $this->tagsPut($key, $selfTags, $AbstractCache,'stag');
         }
     }
 
@@ -30,17 +62,26 @@ class TagManager
      * @param string $tag
      * @param string $key
      */
-    public static function updateTag($tag)
+    public function updateTag($tag, $prefix = 'rtag')
     {
-        $key = self::toKey('tage', $tag);
-        $names = self::$dirverTagInstance->get($key);
+        $key   = Helper::toKey($prefix, $tag);
+        $names = $this->dirverInstance->get($key);
         if ($names) {
             foreach ($names as $name) {
-                $ob = self::$dirverTagInstance->get($name . '_ob');
+                $ob = $this->dirverInstance->get($name . '_ob');
                 if ($ob instanceof AbstractCache) {
                     $ob->update($key);
                 }
             }
+        }
+        
+    }
+    
+    public function updateTags($tags)
+    {
+        foreach ($tags as $tag){
+            $this->updateTag($tag);
+            $this->updateTag($tag,'stag');
         }
     }
 
@@ -50,16 +91,20 @@ class TagManager
      * @param array $tags
      * @param int $ttl
      */
-    private static function tagsPut(string $name, array $tags, int $ttl)
+    private function tagsPut(string $name, array $tags, AbstractCache $AbstractCache,$prefix = 'rtag')
     {
-        self::$dirverTagInstance->set($name . '_ob', $this, $ttl);
+        
+        $this->dirverInstance->set($name . '_ob', $AbstractCache,31536000);
         foreach ($tags as $tag1) {
-            $k = $this->toKey('tage', $tag1);
-            $names = self::$dirverTagInstance->get($k, []);
-            $names[] = $name;
-            $names = array_unique($names);
-            self::$dirverTagInstance->set($k, $names, $ttl);
+            $k   = Helper::toKey($prefix, $tag1);
+            
+            $names   = $this->dirverInstance->get($k, []);
+            if(!in_array($tag1, $names)){
+                $names[] = $name;
+            }
+            $this->dirverInstance->set($k, $names,31536000);
         }
     }
+    
 
 }
